@@ -62,14 +62,15 @@ newtype CByteString = CByteString P.ByteString
   deriving Show
 
 instance Arbitrary CByteString where
-  arbitrary = fmap (CByteString . P.pack . map fromCChar) arbitrary
+  arbitrary = fmap (CByteString . P.pack . map (fromCChar . getNonZero)) arbitrary
     where
       fromCChar :: CChar -> Word8
       fromCChar = fromIntegral
 
+#if !MIN_VERSION_QuickCheck(2,10,0)
 instance Arbitrary CChar where
-  arbitrary = fmap (fromIntegral :: Int -> CChar)
-            $ oneof [choose (-128,-1), choose (1,127)]
+  arbitrary = arbitrarySizedBoundedIntegral
+#endif
 
 ------------------------------------------------------------------------
 --
