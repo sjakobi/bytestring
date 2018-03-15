@@ -26,6 +26,7 @@ import Data.Word
 import Data.Maybe
 import Data.Int (Int64)
 import Data.Monoid
+import Data.Semigroup
 
 import Text.Printf
 import Data.String
@@ -1298,6 +1299,8 @@ prop_unzipBB x = let (xs,ys) = unzip x in (P.pack xs, P.pack ys) == P.unzip x
 -- prop_span_spec x s =
 --     P.span ((==) x) s == P.spanByte x s
 
+prop_stimes (NonNegative n) x = stimes n x == mconcat (replicate n x)
+
 ------------------------------------------------------------------------
 
 -- Test IsString, Show, Read, pack, unpack
@@ -1749,6 +1752,7 @@ misc_tests =
     , testProperty "read 3"                 prop_readL1
     , testProperty "read 4"                 prop_readL2
     , testProperty "fromForeignPtr"         prop_fromForeignPtr
+    , testProperty "stimesBStrict"          (prop_stimes :: NonNegative Int -> ByteString -> Bool)
     ]
 
 ------------------------------------------------------------------------

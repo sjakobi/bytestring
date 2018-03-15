@@ -156,6 +156,8 @@ instance Ord ByteString where
 #if MIN_VERSION_base(4,9,0)
 instance Semigroup ByteString where
     (<>)    = append
+    stimes  = times
+    
 #endif
 
 instance Monoid ByteString where
@@ -511,6 +513,18 @@ concat = \bss0 -> goLen0 bss0 bss0
    concat [x] = x
  #-}
 
+times :: Int -> ByteString -> ByteString
+times n | n < 0 = error "times: non-negative multiplier expected"
+times 0 _ = mempty
+times 1 b = b
+times n b@(PS _ _ 0) = b
+times n b@(PS fp off len) = 
+
+{-# RULES
+"ByteString times 0 _ -> mempty"
+   times 0 _ = mempty
+#-}
+
 -- | Add two non-negative numbers. Errors out on overflow.
 checkedAdd :: String -> Int -> Int -> Int
 checkedAdd fun x y
@@ -518,6 +532,13 @@ checkedAdd fun x y
   | otherwise = overflowError fun
   where r = x + y
 {-# INLINE checkedAdd #-}
+
+checkedMul :: String -> Int -> Int -> Int
+checkedMul fun x y
+  | r >= 0    = r
+  | otherwise = overFlowError fun
+  where r = x * y
+{-# INLINE checkedMul #-}
 
 ------------------------------------------------------------------------
 
